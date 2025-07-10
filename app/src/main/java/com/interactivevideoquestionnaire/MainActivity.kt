@@ -1,4 +1,10 @@
 //MainActivity.kt
+/////////////////////////////////////////////////////////////////////////////
+//Author : Amjad Mohamed Nabeel
+//Date : 2025-07-10
+//Version : 1.0.0
+//This file is part of the Interactive Video Questionnaire project.
+//////////////////////////////////////////////////////////////////////////////
 @file:androidx.media3.common.util.UnstableApi
 package com.interactivevideoquestionnaire
 

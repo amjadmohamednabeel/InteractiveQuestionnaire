@@ -1,10 +1,12 @@
 //MainActivity.kt
+
 /////////////////////////////////////////////////////////////////////////////
 //Author : Amjad Mohamed Nabeel
 //Date : 2025-07-10
 //Version : 1.0.0
 //This file is part of the Interactive Video Questionnaire project.
 //////////////////////////////////////////////////////////////////////////////
+
 @file:androidx.media3.common.util.UnstableApi
 package com.interactivevideoquestionnaire
 
@@ -29,6 +31,53 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsControllerCompat
+
+// Add these constants and sealed classes at the top after the imports
+private object Constants {
+    const val INACTIVITY_TIMEOUT = 12000L // 12 seconds
+    const val TOUCH_ENABLE_DELAY = 800L    // 0.8 seconds
+    const val STATE_CHANGE_DELAY = 4000L   // 4 seconds
+}
+
+sealed class Gender {
+    object Male : Gender()
+    object Female : Gender()
+    
+    fun toKey(): String = when (this) {
+        is Male -> "male"
+        is Female -> "female"
+    }
+}
+
+sealed class AgeGroup {
+    object Young : AgeGroup()      // 18-30
+    object Middle : AgeGroup()     // 30-45
+    object Senior : AgeGroup()     // above45
+    
+    fun toKey(): String = when (this) {
+        is Young -> "18-30"
+        is Middle -> "30-45"
+        is Senior -> "above45"
+    }
+}
+
+sealed class Lifestyle {
+    object Sedentary : Lifestyle()
+    object Normal : Lifestyle()
+    object Athlete : Lifestyle()
+    
+    fun toKey(): String = when (this) {
+        is Sedentary -> "sedentary"
+        is Normal -> "normal"
+        is Athlete -> "athlete"
+    }
+}
+
+data class UserSelection(
+    val gender: Gender? = null,
+    val ageGroup: AgeGroup? = null,
+    val lifestyle: Lifestyle? = null
+)
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -90,9 +139,7 @@ fun VideoTouchSelector(
     var isProductVideoPlaying by remember { mutableStateOf(false) }
     var inactivityJob by remember { mutableStateOf<Job?>(null) }
 
-    var gender by remember { mutableStateOf<String?>(null) }
-    var ageGroup by remember { mutableStateOf<String?>(null) }
-    var lifestyle by remember { mutableStateOf<String?>(null) }
+    var userSelection by remember { mutableStateOf(UserSelection()) }
     var currentResultResId by remember { mutableStateOf<Int?>(null) }
 
     // For tracking video end callbacks
@@ -243,20 +290,21 @@ fun VideoTouchSelector(
         }
 
         coroutineScope.launch {
-            delay(800)
+            delay(Constants.TOUCH_ENABLE_DELAY)
             isTouchEnabled = true
             nextState?.let {
-                delay(4000)
+                delay(Constants.STATE_CHANGE_DELAY)
                 screenState = it
             }
         }
     }
 
     fun playResultVideo() {
-        val genderVal = gender ?: return
-        val ageVal = ageGroup ?: return
-        val lifestyleVal = lifestyle ?: return
-        val resId = resultMap[lifestyleVal]?.get(ageVal)?.get(genderVal)
+        val gender = userSelection.gender?.toKey() ?: return
+        val age = userSelection.ageGroup?.toKey() ?: return
+        val lifestyle = userSelection.lifestyle?.toKey() ?: return
+        
+        val resId = resultMap[lifestyle]?.get(age)?.get(gender)
         if (resId != null) {
             currentResultResId = resId
             val resultUri = "android.resource://${context.packageName}/$resId".toUri()
@@ -266,7 +314,7 @@ fun VideoTouchSelector(
             // Start inactivity timer when on result screen
             inactivityJob?.cancel()
             inactivityJob = coroutineScope.launch {
-                delay(12000) // 12 seconds timeout
+                delay(Constants.INACTIVITY_TIMEOUT) // 12 seconds timeout
                 if (!isProductVideoPlaying && screenState == "result") {
                     screenState = "start"
                 }
@@ -285,7 +333,7 @@ fun VideoTouchSelector(
             "gender" -> {
                 playVideo(genderUri)
                 inactivityJob = coroutineScope.launch {
-                    delay(12000)
+                    delay(Constants.INACTIVITY_TIMEOUT)
                     if (screenState == "gender") {
                         screenState = "start"
                     }
@@ -294,7 +342,7 @@ fun VideoTouchSelector(
             "age" -> {
                 playVideo(ageUri)
                 inactivityJob = coroutineScope.launch {
-                    delay(12000)
+                    delay(Constants.INACTIVITY_TIMEOUT)
                     if (screenState == "age") {
                         screenState = "start"
                     }
@@ -303,7 +351,7 @@ fun VideoTouchSelector(
             "lifestyle" -> {
                 playVideo(lifestyleUri)
                 inactivityJob = coroutineScope.launch {
-                    delay(12000)
+                    delay(Constants.INACTIVITY_TIMEOUT)
                     if (screenState == "lifestyle") {
                         screenState = "start"
                     }
@@ -358,7 +406,7 @@ fun VideoTouchSelector(
                         if (screenState == "result" && !isProductVideoPlaying) {
                             inactivityJob?.cancel()
                             inactivityJob = coroutineScope.launch {
-                                delay(12000)
+                                delay(Constants.INACTIVITY_TIMEOUT)
                                 if (!isProductVideoPlaying && screenState == "result") {
                                     screenState = "start"
                                 }
@@ -369,32 +417,39 @@ fun VideoTouchSelector(
                             "start" -> if (cellIndex == 4) screenState = "gender"
 
                             "gender" -> {
-                                gender = when (cellIndex) {
-                                    6 -> "female"
-                                    8 -> "male"
+                                val selectedGender = when (cellIndex) {
+                                    6 -> Gender.Female
+                                    8 -> Gender.Male
                                     else -> null
                                 }
-                                if (gender != null) screenState = "age"
+                                if (selectedGender != null) {
+                                    userSelection = userSelection.copy(gender = selectedGender)
+                                    screenState = "age"
+                                }
                             }
 
                             "age" -> {
-                                ageGroup = when (cellIndex) {
-                                    6 -> "18-30"
-                                    7 -> "30-45"
-                                    8 -> "above45"
+                                val selectedAge = when (cellIndex) {
+                                    6 -> AgeGroup.Young
+                                    7 -> AgeGroup.Middle
+                                    8 -> AgeGroup.Senior
                                     else -> null
                                 }
-                                if (ageGroup != null) screenState = "lifestyle"
+                                if (selectedAge != null) {
+                                    userSelection = userSelection.copy(ageGroup = selectedAge)
+                                    screenState = "lifestyle"
+                                }
                             }
 
                             "lifestyle" -> {
-                                lifestyle = when (cellIndex) {
-                                    6 -> "sedentary"
-                                    7 -> "normal"
-                                    8 -> "athlete"
+                                val selectedLifestyle = when (cellIndex) {
+                                    6 -> Lifestyle.Sedentary
+                                    7 -> Lifestyle.Normal
+                                    8 -> Lifestyle.Athlete
                                     else -> null
                                 }
-                                if (lifestyle != null) {
+                                if (selectedLifestyle != null) {
+                                    userSelection = userSelection.copy(lifestyle = selectedLifestyle)
                                     isTouchEnabled = false
                                     playResultVideo()
                                 }

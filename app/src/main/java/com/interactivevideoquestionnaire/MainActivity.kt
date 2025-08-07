@@ -2,7 +2,7 @@
 
 /////////////////////////////////////////////////////////////////////////////
 //Author : Amjad Mohamed Nabeel
-//Date : 2025-07-10
+//Date : 2025-08-04
 //Version : 1.0.0
 //This file is part of the Interactive Video Questionnaire project.
 //////////////////////////////////////////////////////////////////////////////
@@ -32,7 +32,7 @@ import kotlinx.coroutines.launch
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsControllerCompat
 
-// Add these constants and sealed classes at the top after the imports
+// Add these constants and sealed classes
 private object Constants {
     const val INACTIVITY_TIMEOUT = 12000L // 12 seconds
     const val TOUCH_ENABLE_DELAY = 800L    // 0.8 seconds
@@ -42,7 +42,7 @@ private object Constants {
 sealed class Gender {
     object Male : Gender()
     object Female : Gender()
-    
+
     fun toKey(): String = when (this) {
         is Male -> "male"
         is Female -> "female"
@@ -53,7 +53,7 @@ sealed class AgeGroup {
     object Young : AgeGroup()      // 18-30
     object Middle : AgeGroup()     // 30-45
     object Senior : AgeGroup()     // above45
-    
+
     fun toKey(): String = when (this) {
         is Young -> "18-30"
         is Middle -> "30-45"
@@ -65,7 +65,7 @@ sealed class Lifestyle {
     object Sedentary : Lifestyle()
     object Normal : Lifestyle()
     object Athlete : Lifestyle()
-    
+
     fun toKey(): String = when (this) {
         is Sedentary -> "sedentary"
         is Normal -> "normal"
@@ -76,7 +76,8 @@ sealed class Lifestyle {
 data class UserSelection(
     val gender: Gender? = null,
     val ageGroup: AgeGroup? = null,
-    val lifestyle: Lifestyle? = null
+    val lifestyle: Lifestyle? = null,
+    val problemOption: Int? = null
 )
 
 class MainActivity : ComponentActivity() {
@@ -90,7 +91,6 @@ class MainActivity : ComponentActivity() {
         controller.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
         controller.hide(androidx.core.view.WindowInsetsCompat.Type.systemBars())
 
-
         setContent {
             val base = "android.resource://${packageName}/"
             VideoTouchSelector(
@@ -98,22 +98,118 @@ class MainActivity : ComponentActivity() {
                 genderUri = "${base}${R.raw.gender}".toUri(),
                 ageUri = "${base}${R.raw.age}".toUri(),
                 lifestyleUri = "${base}${R.raw.lifestyle}".toUri(),
+                // Problem video URIs - you'll need to add these videos to your resources
+                problemUriMap = mapOf(
+                    "male_18-30_athlete" to "${base}${R.raw.p1}".toUri(),
+                    "male_18-30_normal" to "${base}${R.raw.p2}".toUri(),
+                    "male_18-30_sedentary" to "${base}${R.raw.p3}".toUri(),
+                    "male_30-45_athlete" to "${base}${R.raw.p4}".toUri(),
+                    "male_30-45_normal" to "${base}${R.raw.p5}".toUri(),
+                    "male_30-45_sedentary" to "${base}${R.raw.p6}".toUri(),
+                    "male_above45_athlete" to "${base}${R.raw.p7}".toUri(),
+                    "male_above45_normal" to "${base}${R.raw.p8}".toUri(),
+                    "male_above45_sedentary" to "${base}${R.raw.p9}".toUri(),
+                    "female_18-30_athlete" to "${base}${R.raw.p10}".toUri(),
+                    "female_18-30_normal" to "${base}${R.raw.p11}".toUri(),
+                    "female_18-30_sedentary" to "${base}${R.raw.p12}".toUri(),
+                    "female_30-45_athlete" to "${base}${R.raw.p13}".toUri(),
+                    "female_30-45_normal" to "${base}${R.raw.p14}".toUri(),
+                    "female_30-45_sedentary" to "${base}${R.raw.p15}".toUri(),
+                    "female_above45_athlete" to "${base}${R.raw.p16}".toUri(),
+                    "female_above45_normal" to "${base}${R.raw.p17}".toUri(),
+                    "female_above45_sedentary" to "${base}${R.raw.p18}".toUri()
+                ),
+
+                // New sequential result mapping based on your requirement
                 resultMap = mapOf(
-                    "athlete" to mapOf(
-                        "18-30" to mapOf("male" to R.raw.v1, "female" to R.raw.v4),
-                        "30-45" to mapOf("male" to R.raw.v2, "female" to R.raw.v5),
-                        "above45" to mapOf("male" to R.raw.v3, "female" to R.raw.v6)
-                    ),
-                    "normal" to mapOf(
-                        "18-30" to mapOf("male" to R.raw.v7, "female" to R.raw.v10),
-                        "30-45" to mapOf("male" to R.raw.v8, "female" to R.raw.v11),
-                        "above45" to mapOf("male" to R.raw.v9, "female" to R.raw.v12)
-                    ),
-                    "sedentary" to mapOf(
-                        "18-30" to mapOf("male" to R.raw.v13, "female" to R.raw.v16),
-                        "30-45" to mapOf("male" to R.raw.v14, "female" to R.raw.v17),
-                        "above45" to mapOf("male" to R.raw.v15, "female" to R.raw.v18)
-                    )
+                    // Male 18-30 Athletic
+                    "male_18-30_athlete_1" to R.raw.v1,
+                    "male_18-30_athlete_2" to R.raw.v2,
+                    "male_18-30_athlete_3" to R.raw.v3,
+                    // Male 18-30 Normal
+                    "male_18-30_normal_1" to R.raw.v4,
+                    "male_18-30_normal_2" to R.raw.v5,
+                    "male_18-30_normal_3" to R.raw.v6,
+                    // Male 18-30 Sedentary
+                    "male_18-30_sedentary_1" to R.raw.v7,
+                    "male_18-30_sedentary_2" to R.raw.v8,
+                    "male_18-30_sedentary_3" to R.raw.v9,
+                    "male_18-30_sedentary_4" to R.raw.v10,
+                    // Male 30-45 Athletic
+                    "male_30-45_athlete_1" to R.raw.v11,
+                    "male_30-45_athlete_2" to R.raw.v12,
+                    "male_30-45_athlete_3" to R.raw.v13,
+                    "male_30-45_athlete_4" to R.raw.v14,
+                    // Male 30-45 Normal
+                    "male_30-45_normal_1" to R.raw.v15,
+                    "male_30-45_normal_2" to R.raw.v16,
+                    "male_30-45_normal_3" to R.raw.v17,
+                    // Male 30-45 Sedentary
+                    "male_30-45_sedentary_1" to R.raw.v18,
+                    "male_30-45_sedentary_2" to R.raw.v19,
+                    "male_30-45_sedentary_3" to R.raw.v20,
+                    "male_30-45_sedentary_4" to R.raw.v21,
+                    // Male Above 45 Athletic
+                    "male_above45_athlete_1" to R.raw.v22,
+                    "male_above45_athlete_2" to R.raw.v23,
+                    "male_above45_athlete_3" to R.raw.v24,
+                    // Male Above 45 Normal
+                    "male_above45_normal_1" to R.raw.v25,
+                    "male_above45_normal_2" to R.raw.v26,
+                    "male_above45_normal_3" to R.raw.v27,
+                    "male_above45_normal_4" to R.raw.v28,
+                    // Male Above 45 Sedentary
+                    "male_above45_sedentary_1" to R.raw.v29,
+                    "male_above45_sedentary_2" to R.raw.v30,
+                    "male_above45_sedentary_3" to R.raw.v31,
+                    "male_above45_sedentary_4" to R.raw.v32,
+                    "male_above45_sedentary_5" to R.raw.v33,
+                    // Female 18-30 Athletic
+                    "female_18-30_athlete_1" to R.raw.v34,
+                    "female_18-30_athlete_2" to R.raw.v35,
+                    "female_18-30_athlete_3" to R.raw.v36,
+                    "female_18-30_athlete_4" to R.raw.v37,
+                    // Female 18-30 Normal
+                    "female_18-30_normal_1" to R.raw.v38,
+                    "female_18-30_normal_2" to R.raw.v39,
+                    "female_18-30_normal_3" to R.raw.v40,
+                    "female_18-30_normal_4" to R.raw.v41,
+                    // Female 18-30 Sedentary
+                    "female_18-30_sedentary_1" to R.raw.v42,
+                    "female_18-30_sedentary_2" to R.raw.v43,
+                    "female_18-30_sedentary_3" to R.raw.v44,
+                    "female_18-30_sedentary_4" to R.raw.v45,
+                    // Female 30-45 Athletic
+                    "female_30-45_athlete_1" to R.raw.v46,
+                    "female_30-45_athlete_2" to R.raw.v47,
+                    "female_30-45_athlete_3" to R.raw.v48,
+                    "female_30-45_athlete_4" to R.raw.v49,
+                    // Female 30-45 Normal
+                    "female_30-45_normal_1" to R.raw.v50,
+                    "female_30-45_normal_2" to R.raw.v51,
+                    "female_30-45_normal_3" to R.raw.v52,
+                    "female_30-45_normal_4" to R.raw.v53,
+                    // Female 30-45 Sedentary
+                    "female_30-45_sedentary_1" to R.raw.v54,
+                    "female_30-45_sedentary_2" to R.raw.v55,
+                    "female_30-45_sedentary_3" to R.raw.v56,
+                    "female_30-45_sedentary_4" to R.raw.v57,
+                    // Female Above 45 Athletic
+                    "female_above45_athlete_1" to R.raw.v58,
+                    "female_above45_athlete_2" to R.raw.v59,
+                    "female_above45_athlete_3" to R.raw.v60,
+                    "female_above45_athlete_4" to R.raw.v61,
+                    // Female Above 45 Normal
+                    "female_above45_normal_1" to R.raw.v62,
+                    "female_above45_normal_2" to R.raw.v63,
+                    "female_above45_normal_3" to R.raw.v64,
+                    "female_above45_normal_4" to R.raw.v65,
+                    // Female Above 45 Sedentary
+                    "female_above45_sedentary_1" to R.raw.v66,
+                    "female_above45_sedentary_2" to R.raw.v67,
+                    "female_above45_sedentary_3" to R.raw.v68,
+                    "female_above45_sedentary_4" to R.raw.v69,
+                    "female_above45_sedentary_5" to R.raw.v70
                 )
             )
         }
@@ -126,7 +222,8 @@ fun VideoTouchSelector(
     genderUri: Uri,
     ageUri: Uri,
     lifestyleUri: Uri,
-    resultMap: Map<String, Map<String, Map<String, Int>>>
+    problemUriMap: Map<String, Uri>,
+    resultMap: Map<String, Int>
 ) {
     val context = LocalContext.current
     val exoPlayer = remember { ExoPlayer.Builder(context).build() }
@@ -161,112 +258,327 @@ fun VideoTouchSelector(
 
     val productGridMap = mapOf(
         R.raw.v1 to listOf(
-            ProductZone(2..4, 1, R.raw.l_carnitine),
-            ProductZone(2..4, 2, R.raw.magnesium),
-            ProductZone(2..4, 5, R.raw.omega3),
-            ProductZone(2..4, 6, R.raw.iron)
+            ProductZone(2..4, 1, R.raw.super_aktiv),
+            ProductZone(2..4, 2, R.raw.super_aktiv),
+            ProductZone(2..4, 5, R.raw.super_aktiv),
+            ProductZone(2..4, 6, R.raw.super_aktiv)
         ),
         R.raw.v2 to listOf(
-            ProductZone(2..4, 1, R.raw.l_carnitine),
-            ProductZone(2..4, 2, R.raw.l_arginine),
-            ProductZone(2..4, 5, R.raw.magnesium),
-            ProductZone(2..4, 6, R.raw.omega3)
+            ProductZone(2..4, 1, R.raw.super_aktiv),
+            ProductZone(2..4, 2, R.raw.super_aktiv),
+            ProductZone(2..4, 5, R.raw.co_q10_200)
         ),
         R.raw.v3 to listOf(
-            ProductZone(2..4, 1, R.raw.l_carnitine),
+            ProductZone(2..4, 1, R.raw.l_arginine),
             ProductZone(2..4, 2, R.raw.l_arginine),
-            ProductZone(2..4, 5, R.raw.ginkobiloba),
-            ProductZone(2..4, 6, R.raw.magnesium)
+            ProductZone(2..4, 5, R.raw.l_arginine)
         ),
         R.raw.v4 to listOf(
-            ProductZone(2..4, 1, R.raw.l_carnitine),
-            ProductZone(2..4, 2, R.raw.biotin),
-            ProductZone(2..4, 5, R.raw.omega7),
-            ProductZone(2..4, 6, R.raw.magnesium)
+            ProductZone(2..4, 1, R.raw.super_aktiv),
+            ProductZone(2..4, 2, R.raw.super_aktiv),
+            ProductZone(2..4, 5, R.raw.super_aktiv)
         ),
         R.raw.v5 to listOf(
-            ProductZone(2..4, 1, R.raw.l_carnitine),
-            ProductZone(2..4, 2, R.raw.biotin),
-            ProductZone(2..4, 5, R.raw.omega7),
-            ProductZone(2..4, 6, R.raw.glutathione)
+            ProductZone(2..4, 1, R.raw.super_aktiv),
+            ProductZone(2..4, 2, R.raw.super_aktiv),
+            ProductZone(2..4, 5, R.raw.super_aktiv)
         ),
         R.raw.v6 to listOf(
-            ProductZone(2..4, 1, R.raw.l_carnitine),
-            ProductZone(2..4, 2, R.raw.biotin),
-            ProductZone(2..4, 5, R.raw.omega3),
-            ProductZone(2..4, 6, R.raw.glutathione)
+            ProductZone(2..4, 1, R.raw.ashwagandha),
+            ProductZone(2..4, 2, R.raw.ashwagandha),
+            ProductZone(2..4, 5, R.raw.ashwagandha)
         ),
         R.raw.v7 to listOf(
-            ProductZone(2..4, 1, R.raw.omega3),
-            ProductZone(2..4, 2, R.raw.l_arginine),
-            ProductZone(2..4, 5, R.raw.vitamin_d),
-            ProductZone(2..4, 6, R.raw.iron)
+            ProductZone(2..4, 2, R.raw.magnesium),
+            ProductZone(2..4, 5, R.raw.super_aktiv),
+            ProductZone(2..4, 6, R.raw.super_aktiv)
         ),
         R.raw.v8 to listOf(
-            ProductZone(2..4, 1, R.raw.co_q10_200),
-            ProductZone(2..4, 2, R.raw.l_arginine),
-            ProductZone(2..4, 5, R.raw.vitamin_b),
-            ProductZone(2..4, 6, R.raw.vitamin_d)
+            ProductZone(2..4, 1, R.raw.ashwagandha),
+            ProductZone(2..4, 2, R.raw.ashwagandha),
+            ProductZone(2..4, 5, R.raw.ashwagandha)
         ),
         R.raw.v9 to listOf(
-            ProductZone(2..4, 1, R.raw.ginkobiloba),
-            ProductZone(2..4, 2, R.raw.co_q10_200),
-            ProductZone(2..4, 5, R.raw.vitamin_b),
-            ProductZone(2..4, 6, R.raw.selenium)
+            ProductZone(2..4, 2, R.raw.ginkobiloba),
+            ProductZone(2..4, 5, R.raw.omegat),
+            ProductZone(2..4, 6, R.raw.omegat)
         ),
         R.raw.v10 to listOf(
-            ProductZone(2..4, 1, R.raw.biotin),
-            ProductZone(2..4, 2, R.raw.iron),
-            ProductZone(2..4, 5, R.raw.omega7),
-            ProductZone(2..4, 6, R.raw.vitamin_d)
+            ProductZone(2..4, 2, R.raw.super_aktiv)
         ),
         R.raw.v11 to listOf(
-            ProductZone(2..4, 1, R.raw.ronzalax),
-            ProductZone(2..4, 2, R.raw.iron),
-            ProductZone(2..4, 5, R.raw.glutathione),
-            ProductZone(2..4, 6, R.raw.vitamin_d)
+            ProductZone(2..4, 1, R.raw.super_aktiv),
+            ProductZone(2..4, 2, R.raw.super_aktiv),
+            ProductZone(2..4, 5, R.raw.super_aktiv),
+            ProductZone(2..4, 6, R.raw.super_aktiv)
         ),
         R.raw.v12 to listOf(
-            ProductZone(2..4, 1, R.raw.ronzalax),
-            ProductZone(2..4, 2, R.raw.ginkobiloba),
-            ProductZone(2..4, 5, R.raw.iron),
-            ProductZone(2..4, 6, R.raw.vitamin_b)
+            ProductZone(2..4, 1, R.raw.co_q10_200),
+            ProductZone(2..4, 2, R.raw.co_q10_200),
+            ProductZone(2..4, 5, R.raw.co_q10_200)
         ),
         R.raw.v13 to listOf(
-            ProductZone(2..4, 1, R.raw.omega3),
-            ProductZone(2..4, 2, R.raw.vitamin_d),
-            ProductZone(2..4, 5, R.raw.iron),
-            ProductZone(2..4, 6, R.raw.zinc)
+            ProductZone(2..4, 1, R.raw.ron_j),
+            ProductZone(2..4, 2, R.raw.ron_j),
+            ProductZone(2..4, 5, R.raw.ron_j)
         ),
         R.raw.v14 to listOf(
-            ProductZone(2..4, 1, R.raw.ronzalax),
-            ProductZone(2..4, 2, R.raw.vitamin_d),
-            ProductZone(2..4, 5, R.raw.l_arginine),
-            ProductZone(2..4, 6, R.raw.magnesium)
+            ProductZone(2..4, 2, R.raw.ginkobiloba),
+            ProductZone(2..4, 5, R.raw.omegat),
+            ProductZone(2..4, 6, R.raw.omegat)
         ),
         R.raw.v15 to listOf(
-            ProductZone(2..4, 1, R.raw.selenium),
-            ProductZone(2..4, 2, R.raw.zinc),
-            ProductZone(2..4, 5, R.raw.ginkobiloba),
-            ProductZone(2..4, 6, R.raw.ronzalax)
+            ProductZone(2..4, 1, R.raw.super_aktiv),
+            ProductZone(2..4, 2, R.raw.super_aktiv),
+            ProductZone(2..4, 5, R.raw.super_aktiv)
         ),
         R.raw.v16 to listOf(
-            ProductZone(2..4, 1, R.raw.glutathione),
-            ProductZone(2..4, 2, R.raw.omega7),
-            ProductZone(2..4, 5, R.raw.iron),
-            ProductZone(2..4, 6, R.raw.biotin)
+            ProductZone(2..4, 2, R.raw.ginkobiloba),
+            ProductZone(2..4, 5, R.raw.omegat),
+            ProductZone(2..4, 6, R.raw.omegat)
         ),
         R.raw.v17 to listOf(
-            ProductZone(2..4, 1, R.raw.vitamin_d),
-            ProductZone(2..4, 2, R.raw.omega7),
-            ProductZone(2..4, 5, R.raw.biotin),
-            ProductZone(2..4, 6, R.raw.co_q10_200)
+            ProductZone(2..4, 2, R.raw.rongum_multivitamin),
+            ProductZone(2..4, 5, R.raw.rongum_multivitamin)
         ),
         R.raw.v18 to listOf(
-            ProductZone(2..4, 1, R.raw.ronzalax),
-            ProductZone(2..4, 2, R.raw.vitamin_b),
-            ProductZone(2..4, 5, R.raw.ginkobiloba),
-            ProductZone(2..4, 6, R.raw.omega3)
+            ProductZone(2..4, 2, R.raw.ashwagandha),
+            ProductZone(2..4, 5, R.raw.ashwagandha),
+            ProductZone(2..4, 6, R.raw.ashwagandha)
+        ),
+        R.raw.v19 to listOf(
+            ProductZone(2..4, 2, R.raw.ashwagandha)
+        ),
+        R.raw.v20 to listOf(
+            ProductZone(2..4, 1, R.raw.ashwagandha),
+            ProductZone(2..4, 2, R.raw.ashwagandha),
+            ProductZone(2..4, 5, R.raw.omegat),
+            ProductZone(2..4, 6, R.raw.omegat)
+        ),
+        R.raw.v21 to listOf(
+            ProductZone(2..4, 1, R.raw.super_aktiv),
+            ProductZone(2..4, 2, R.raw.super_aktiv),
+            ProductZone(2..4, 5, R.raw.co_q10_200)
+        ),
+        R.raw.v22 to listOf(
+            ProductZone(2..4, 1, R.raw.ron_j),
+            ProductZone(2..4, 2, R.raw.ron_j),
+            ProductZone(2..4, 5, R.raw.ron_j)
+        ),
+        R.raw.v23 to listOf(
+            ProductZone(2..4, 1, R.raw.l_carnitine),
+            ProductZone(2..4, 2, R.raw.l_carnitine),
+            ProductZone(2..4, 5, R.raw.l_carnitine)
+        ),
+        R.raw.v24 to listOf(
+            ProductZone(2..4, 2, R.raw.ginkobiloba),
+            ProductZone(2..4, 5, R.raw.omegat),
+            ProductZone(2..4, 6, R.raw.omegat)
+        ),
+        R.raw.v25 to listOf(
+            ProductZone(2..4, 2, R.raw.vitamin_d),
+            ProductZone(2..4, 5, R.raw.rongum_calcium)
+        ),
+        R.raw.v26 to listOf(
+            ProductZone(2..4, 2, R.raw.ginkobiloba),
+            ProductZone(2..4, 5, R.raw.omegat),
+            ProductZone(2..4, 6, R.raw.omegat)
+        ),
+        R.raw.v27 to listOf(
+            ProductZone(2..4, 1, R.raw.super_aktiv),
+            ProductZone(2..4, 2, R.raw.super_aktiv),
+            ProductZone(2..4, 5, R.raw.super_aktiv)
+        ),
+        R.raw.v28 to listOf(
+            ProductZone(2..4, 1, R.raw.super_aktiv),
+            ProductZone(2..4, 2, R.raw.omegat)
+        ),
+        R.raw.v29 to listOf(
+            ProductZone(2..4, 1, R.raw.ashwagandha),
+            ProductZone(2..4, 2, R.raw.ashwagandha),
+            ProductZone(2..4, 5, R.raw.ashwagandha)
+        ),
+        R.raw.v30 to listOf(
+            ProductZone(2..4, 1, R.raw.ron_j),
+            ProductZone(2..4, 2, R.raw.ron_j),
+            ProductZone(2..4, 5, R.raw.ron_j)
+        ),
+        R.raw.v31 to listOf(
+            ProductZone(2..4, 2, R.raw.ron_j)
+        ),
+        R.raw.v32 to listOf(
+            ProductZone(2..4, 2, R.raw.l_carnitine),
+            ProductZone(2..4, 5, R.raw.magnesium)
+        ),
+        R.raw.v33 to listOf(
+            ProductZone(2..4, 2, R.raw.rongum_multivitamin),
+            ProductZone(2..4, 5, R.raw.rongum_multivitamin)
+        ),
+        R.raw.v34 to listOf(
+            ProductZone(2..4, 2, R.raw.biotin),
+            ProductZone(2..4, 5, R.raw.ron_h)
+        ),
+        R.raw.v35 to listOf(
+            ProductZone(2..4, 2, R.raw.l_carnitine),
+            ProductZone(2..4, 5, R.raw.super_aktiv),
+            ProductZone(2..4, 6, R.raw.super_aktiv)
+        ),
+        R.raw.v36 to listOf(
+            ProductZone(2..4, 2, R.raw.l_carnitine),
+            ProductZone(2..4, 5, R.raw.co_q10_200)
+        ),
+        R.raw.v37 to listOf(
+            ProductZone(2..4, 1, R.raw.ron_s),
+            ProductZone(2..4, 2, R.raw.ron_s),
+            ProductZone(2..4, 5, R.raw.glutathione)
+        ),
+        R.raw.v38 to listOf(
+            ProductZone(2..4, 1, R.raw.super_aktiv),
+            ProductZone(2..4, 2, R.raw.super_aktiv),
+            ProductZone(2..4, 5, R.raw.super_aktiv)
+        ),
+        R.raw.v39 to listOf(
+            ProductZone(2..4, 2, R.raw.iron)
+        ),
+        R.raw.v40 to listOf(
+            ProductZone(2..4, 2, R.raw.ron_s),
+            ProductZone(2..4, 5, R.raw.ron_s),
+            ProductZone(2..4, 6, R.raw.ron_s)
+        ),
+        R.raw.v41 to listOf(
+            ProductZone(2..4, 2, R.raw.rongum_multivitamin),
+            ProductZone(2..4, 5, R.raw.rongum_multivitamin)
+        ),
+        R.raw.v42 to listOf(
+            ProductZone(2..4, 1, R.raw.super_aktiv),
+            ProductZone(2..4, 2, R.raw.spasmiona)
+        ),
+        R.raw.v43 to listOf(
+            ProductZone(2..4, 1, R.raw.super_aktiv),
+            ProductZone(2..4, 2, R.raw.super_aktiv),
+            ProductZone(2..4, 5, R.raw.rongum_multivitamin)
+        ),
+        R.raw.v44 to listOf(
+            ProductZone(2..4, 1, R.raw.ashwagandha),
+            ProductZone(2..4, 2, R.raw.ashwagandha),
+            ProductZone(2..4, 5, R.raw.ashwagandha)
+        ),
+        R.raw.v45 to listOf(
+            ProductZone(2..4, 2, R.raw.ronzalax)
+        ),
+        R.raw.v46 to listOf(
+            ProductZone(2..4, 1, R.raw.super_aktiv),
+            ProductZone(2..4, 2, R.raw.super_aktiv),
+            ProductZone(2..4, 5, R.raw.l_carnitine)
+        ),
+        R.raw.v47 to listOf(
+            ProductZone(2..4, 1, R.raw.super_aktiv),
+            ProductZone(2..4, 2, R.raw.super_aktiv)
+        ),
+        R.raw.v48 to listOf(
+            ProductZone(2..4, 2, R.raw.capillorin),
+            ProductZone(2..4, 5, R.raw.ron_h),
+            ProductZone(2..4, 6, R.raw.ron_h)
+        ),
+        R.raw.v49 to listOf(
+            ProductZone(2..4, 1, R.raw.ashwagandha),
+            ProductZone(2..4, 2, R.raw.ashwagandha)
+        ),
+        R.raw.v50 to listOf(
+            ProductZone(2..4, 1, R.raw.omegat),
+            ProductZone(2..4, 2, R.raw.omegat),
+            ProductZone(2..4, 5, R.raw.co_q10_200)
+        ),
+        R.raw.v51 to listOf(
+            ProductZone(2..4, 2, R.raw.ron_h),
+            ProductZone(2..4, 5, R.raw.ron_h),
+            ProductZone(2..4, 6, R.raw.ron_h)
+        ),
+        R.raw.v52 to listOf(
+            ProductZone(2..4, 2, R.raw.iron),
+            ProductZone(2..4, 5, R.raw.iron)
+        ),
+        R.raw.v53 to listOf(
+            ProductZone(2..4, 2, R.raw.cronz),
+            ProductZone(2..4, 5, R.raw.zinc)
+        ),
+        R.raw.v54 to listOf(
+            ProductZone(2..4, 1, R.raw.ashwagandha),
+            ProductZone(2..4, 2, R.raw.ashwagandha),
+            ProductZone(2..4, 5, R.raw.ashwagandha)
+        ),
+        R.raw.v55 to listOf(
+            ProductZone(2..4, 2, R.raw.super_aktiv)
+        ),
+        R.raw.v56 to listOf(
+            ProductZone(2..4, 1, R.raw.super_aktiv),
+            ProductZone(2..4, 2, R.raw.super_aktiv),
+            ProductZone(2..4, 5, R.raw.rongum_multivitamin)
+        ),
+        R.raw.v57 to listOf(
+            ProductZone(2..4, 2, R.raw.ron_h),
+            ProductZone(2..4, 5, R.raw.ron_h),
+            ProductZone(2..4, 6, R.raw.ron_h)
+        ),
+        R.raw.v58 to listOf(
+            ProductZone(2..4, 1, R.raw.ron_j),
+            ProductZone(2..4, 2, R.raw.ron_j),
+            ProductZone(2..4, 5, R.raw.ron_j)
+        ),
+        R.raw.v59 to listOf(
+            ProductZone(2..4, 2, R.raw.vitamin_d),
+            ProductZone(2..4, 5, R.raw.rongum_calcium)
+        ),
+        R.raw.v60 to listOf(
+            ProductZone(2..4, 1, R.raw.omegat),
+            ProductZone(2..4, 2, R.raw.omegat),
+            ProductZone(2..4, 5, R.raw.co_q10_200)
+        ),
+        R.raw.v61 to listOf(
+            ProductZone(2..4, 2, R.raw.ron_h),
+            ProductZone(2..4, 5, R.raw.ron_h),
+            ProductZone(2..4, 6, R.raw.ron_h)
+        ),
+        R.raw.v62 to listOf(
+            ProductZone(2..4, 1, R.raw.ron_j),
+            ProductZone(2..4, 2, R.raw.ron_j),
+            ProductZone(2..4, 5, R.raw.ron_j)
+        ),
+        R.raw.v63 to listOf(
+            ProductZone(2..4, 1, R.raw.ron_s),
+            ProductZone(2..4, 2, R.raw.ron_s)
+        ),
+        R.raw.v64 to listOf(
+            ProductZone(2..4, 2, R.raw.ginkobiloba),
+            ProductZone(2..4, 5, R.raw.omegat),
+            ProductZone(2..4, 6, R.raw.omegat)
+        ),
+        R.raw.v65 to listOf(
+            ProductZone(2..4, 2, R.raw.ron_h),
+            ProductZone(2..4, 5, R.raw.ron_h),
+            ProductZone(2..4, 6, R.raw.ron_h)
+        ),
+        R.raw.v66 to listOf(
+            ProductZone(2..4, 1, R.raw.ashwagandha),
+            ProductZone(2..4, 2, R.raw.ashwagandha),
+            ProductZone(2..4, 5, R.raw.ashwagandha)
+        ),
+        R.raw.v67 to listOf(
+            ProductZone(2..4, 2, R.raw.rongum_multivitamin),
+            ProductZone(2..4, 5, R.raw.rongum_multivitamin)
+        ),
+        R.raw.v68 to listOf(
+            ProductZone(2..4, 1, R.raw.omegat),
+            ProductZone(2..4, 2, R.raw.omegat)
+        ),
+        R.raw.v69 to listOf(
+            ProductZone(2..4, 1, R.raw.ron_j),
+            ProductZone(2..4, 2, R.raw.ron_j),
+            ProductZone(2..4, 5, R.raw.ron_j)
+        ),
+        R.raw.v70 to listOf(
+            ProductZone(2..4, 2, R.raw.vitamin_d),
+            ProductZone(2..4, 5, R.raw.rongum_calcium)
         )
     )
 
@@ -299,12 +611,38 @@ fun VideoTouchSelector(
         }
     }
 
+    fun getProblemKey(): String? {
+        val gender = userSelection.gender?.toKey() ?: return null
+        val age = userSelection.ageGroup?.toKey() ?: return null
+        val lifestyle = userSelection.lifestyle?.toKey() ?: return null
+        return "${gender}_${age}_${lifestyle}"
+    }
+
+    fun getResultKey(): String? {
+        val gender = userSelection.gender?.toKey() ?: return null
+        val age = userSelection.ageGroup?.toKey() ?: return null
+        val lifestyle = userSelection.lifestyle?.toKey() ?: return null
+        val option = userSelection.problemOption ?: return null
+        return "${gender}_${age}_${lifestyle}_${option}"
+    }
+
+    fun getMaxOptionsForCurrentSelection(): Int {
+        val key = getProblemKey() ?: return 0
+        return when (key) {
+            "male_18-30_sedentary", "male_30-45_athlete", "male_30-45_sedentary",
+            "male_above45_normal", "male_above45_sedentary", "female_18-30_athlete",
+            "female_18-30_normal", "female_18-30_sedentary", "female_30-45_athlete",
+            "female_30-45_normal", "female_30-45_sedentary", "female_above45_athlete",
+            "female_above45_normal", "female_above45_sedentary" -> {
+                if (key == "male_above45_sedentary" || key == "female_above45_sedentary") 5 else 4
+            }
+            else -> 3 // Default for most combinations
+        }
+    }
+
     fun playResultVideo() {
-        val gender = userSelection.gender?.toKey() ?: return
-        val age = userSelection.ageGroup?.toKey() ?: return
-        val lifestyle = userSelection.lifestyle?.toKey() ?: return
-        
-        val resId = resultMap[lifestyle]?.get(age)?.get(gender)
+        val resultKey = getResultKey()
+        val resId = resultKey?.let { resultMap[it] }
         if (resId != null) {
             currentResultResId = resId
             val resultUri = "android.resource://${context.packageName}/$resId".toUri()
@@ -354,6 +692,19 @@ fun VideoTouchSelector(
                     delay(Constants.INACTIVITY_TIMEOUT)
                     if (screenState == "lifestyle") {
                         screenState = "start"
+                    }
+                }
+            }
+            "problem" -> {
+                val problemKey = getProblemKey()
+                val problemUri = problemKey?.let { problemUriMap[it] }
+                if (problemUri != null) {
+                    playVideo(problemUri)
+                    inactivityJob = coroutineScope.launch {
+                        delay(Constants.INACTIVITY_TIMEOUT)
+                        if (screenState == "problem") {
+                            screenState = "start"
+                        }
                     }
                 }
             }
@@ -450,6 +801,38 @@ fun VideoTouchSelector(
                                 }
                                 if (selectedLifestyle != null) {
                                     userSelection = userSelection.copy(lifestyle = selectedLifestyle)
+                                    screenState = "problem"
+                                }
+                            }
+
+                            "problem" -> {
+                                val maxOptions = getMaxOptionsForCurrentSelection()
+                                val selectedOption = when (maxOptions) {
+                                    3 -> when (cellIndex) {
+                                        6 -> 1  // Bottom left
+                                        7 -> 2  // Bottom middle
+                                        8 -> 3  // Bottom right
+                                        else -> null
+                                    }
+                                    4 -> when (cellIndex) {
+                                        3 -> 1  // Top right
+                                        6 -> 2  // Bottom left
+                                        8 -> 3  // Bottom right
+                                        5 -> 4  // Top middle right
+                                        else -> null
+                                    }
+                                    5 -> when (cellIndex) {
+                                        3 -> 1  // Top right
+                                        6 -> 2  // Bottom left
+                                        7 -> 3  // Bottom middle
+                                        8 -> 4  // Bottom right
+                                        5 -> 5  // Top middle right
+                                        else -> null
+                                    }
+                                    else -> null
+                                }
+                                if (selectedOption != null) {
+                                    userSelection = userSelection.copy(problemOption = selectedOption)
                                     isTouchEnabled = false
                                     playResultVideo()
                                 }

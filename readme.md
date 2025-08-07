@@ -205,11 +205,11 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 👥 Authors
 
-- **Amjad Mohamed Nabeel** - *Initial work* - [GitHub Profile](https://github.com/amjadnabeel)
+- **Amjad Mohamed Nabeel** - *Initial work* - [GitHub Profile](https://github.com/amjadmohamednabeel)
 
 ## 📞 Support
 
-For support, email amjad@example.com or create an issue in this repository.
+For support, email amnamjad4@gmail.com or create an issue in this repository.
 
 ## 🙏 Acknowledgments
 

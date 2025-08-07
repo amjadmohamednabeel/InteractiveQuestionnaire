@@ -134,7 +134,7 @@ The app requires access to video resources stored in the application package.
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/interactive-video-questionnaire.git
+git clone https://github.com/amjadmohamednabeel/InteractiveQuestionnaire.git
 ```
 
 2. Open the project in Android Studio

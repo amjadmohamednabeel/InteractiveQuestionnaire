@@ -26,7 +26,7 @@ CONTACT:
 
 For licensing inquiries, please contact:
 Amjad Mohamed Nabeel
-Email: [Your Email]
+Email: amnamjad4@gmail.com
 Project: Interactive Video Questionnaire
 Version: 1.0.0
 Date: August 2025

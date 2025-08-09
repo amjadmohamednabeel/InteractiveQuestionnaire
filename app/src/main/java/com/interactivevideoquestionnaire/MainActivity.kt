@@ -1,10 +1,10 @@
 //MainActivity.kt
 
-/////////////////////////////////////////////////////////////////////////////
-//Author : Amjad Mohamed Nabeel
-//Date : 2025-08-04
-//Version : 1.0.0
-//This file is part of the Interactive Video Questionnaire project.
+//////////////////////////////////////////////////////////////////////////////
+//Author : Amjad Mohamed Nabeel                                           ////
+//Date : 2025-08-04                                                       ////
+//Version : 1.0.1                                                         ////
+//This file is part of the Interactive Video Questionnaire project.       ////
 //////////////////////////////////////////////////////////////////////////////
 
 @file:androidx.media3.common.util.UnstableApi
@@ -35,7 +35,7 @@ import androidx.core.view.WindowInsetsControllerCompat
 // Add these constants and sealed classes
 private object Constants {
     const val INACTIVITY_TIMEOUT = 12000L // 12 seconds
-    const val TOUCH_ENABLE_DELAY = 800L    // 0.8 seconds
+    const val TOUCH_ENABLE_DELAY = 1000L    // Increased to 1.0 seconds
     const val STATE_CHANGE_DELAY = 4000L   // 4 seconds
 }
 
@@ -230,6 +230,7 @@ fun VideoTouchSelector(
 
     var screenState by remember { mutableStateOf("start") }
     var isTouchEnabled by remember { mutableStateOf(true) }
+    var isVideoReady by remember { mutableStateOf(false) }  // NEW: Track video readiness
     val coroutineScope = rememberCoroutineScope()
 
     // State for tracking product video playback and inactivity
@@ -242,13 +243,24 @@ fun VideoTouchSelector(
     // For tracking video end callbacks
     var currentOnEnded: (() -> Unit)? by remember { mutableStateOf(null) }
 
-    // ExoPlayer listener to detect when videos finish playing
+    // ExoPlayer listener to detect when videos finish playing and are ready
     val playbackListener = remember {
         object : Player.Listener {
             override fun onPlaybackStateChanged(state: Int) {
-                if (state == Player.STATE_ENDED) {
-                    currentOnEnded?.invoke()
-                    currentOnEnded = null
+                when (state) {
+                    Player.STATE_IDLE -> {
+                        isVideoReady = false
+                    }
+                    Player.STATE_BUFFERING -> {
+                        isVideoReady = false
+                    }
+                    Player.STATE_READY -> {
+                        isVideoReady = true  // Mark video as ready
+                    }
+                    Player.STATE_ENDED -> {
+                        currentOnEnded?.invoke()
+                        currentOnEnded = null
+                    }
                 }
             }
         }
@@ -258,30 +270,30 @@ fun VideoTouchSelector(
 
     val productGridMap = mapOf(
         R.raw.v1 to listOf(
-            ProductZone(2..4, 1, R.raw.super_aktiv),
-            ProductZone(2..4, 2, R.raw.super_aktiv),
-            ProductZone(2..4, 5, R.raw.super_aktiv),
-            ProductZone(2..4, 6, R.raw.super_aktiv)
+            ProductZone(2..4, 1, R.raw.carnitova),
+            ProductZone(2..4, 2, R.raw.carnitova),
+            ProductZone(2..4, 5, R.raw.superaktiv),
+            ProductZone(2..4, 6, R.raw.superaktiv)
         ),
         R.raw.v2 to listOf(
-            ProductZone(2..4, 1, R.raw.super_aktiv),
-            ProductZone(2..4, 2, R.raw.super_aktiv),
+            ProductZone(2..4, 1, R.raw.selenium),
+            ProductZone(2..4, 2, R.raw.superaktiv),
             ProductZone(2..4, 5, R.raw.co_q10_200)
         ),
         R.raw.v3 to listOf(
-            ProductZone(2..4, 1, R.raw.l_arginine),
-            ProductZone(2..4, 2, R.raw.l_arginine),
+            ProductZone(2..4, 1, R.raw.carnitova),
+            ProductZone(2..4, 2, R.raw.carnitova),
             ProductZone(2..4, 5, R.raw.l_arginine)
         ),
         R.raw.v4 to listOf(
-            ProductZone(2..4, 1, R.raw.super_aktiv),
-            ProductZone(2..4, 2, R.raw.super_aktiv),
-            ProductZone(2..4, 5, R.raw.super_aktiv)
+            ProductZone(2..4, 1, R.raw.superaktiv),
+            ProductZone(2..4, 2, R.raw.superaktiv),
+            ProductZone(2..4, 5, R.raw.multivitamins)
         ),
         R.raw.v5 to listOf(
-            ProductZone(2..4, 1, R.raw.super_aktiv),
-            ProductZone(2..4, 2, R.raw.super_aktiv),
-            ProductZone(2..4, 5, R.raw.super_aktiv)
+            ProductZone(2..4, 1, R.raw.superaktiv),
+            ProductZone(2..4, 2, R.raw.superaktiv),
+            ProductZone(2..4, 5, R.raw.multivitamins)
         ),
         R.raw.v6 to listOf(
             ProductZone(2..4, 1, R.raw.ashwagandha),
@@ -290,8 +302,8 @@ fun VideoTouchSelector(
         ),
         R.raw.v7 to listOf(
             ProductZone(2..4, 2, R.raw.magnesium),
-            ProductZone(2..4, 5, R.raw.super_aktiv),
-            ProductZone(2..4, 6, R.raw.super_aktiv)
+            ProductZone(2..4, 5, R.raw.superaktiv),
+            ProductZone(2..4, 6, R.raw.superaktiv)
         ),
         R.raw.v8 to listOf(
             ProductZone(2..4, 1, R.raw.ashwagandha),
@@ -304,17 +316,17 @@ fun VideoTouchSelector(
             ProductZone(2..4, 6, R.raw.omegat)
         ),
         R.raw.v10 to listOf(
-            ProductZone(2..4, 2, R.raw.super_aktiv)
+            ProductZone(2..4, 2, R.raw.superaktiv)
         ),
         R.raw.v11 to listOf(
-            ProductZone(2..4, 1, R.raw.super_aktiv),
-            ProductZone(2..4, 2, R.raw.super_aktiv),
-            ProductZone(2..4, 5, R.raw.super_aktiv),
-            ProductZone(2..4, 6, R.raw.super_aktiv)
+            ProductZone(2..4, 1, R.raw.carnitova),
+            ProductZone(2..4, 2, R.raw.carnitova),
+            ProductZone(2..4, 5, R.raw.superaktiv),
+            ProductZone(2..4, 6, R.raw.superaktiv)
         ),
         R.raw.v12 to listOf(
-            ProductZone(2..4, 1, R.raw.co_q10_200),
-            ProductZone(2..4, 2, R.raw.co_q10_200),
+            ProductZone(2..4, 1, R.raw.carnitova),
+            ProductZone(2..4, 2, R.raw.carnitova),
             ProductZone(2..4, 5, R.raw.co_q10_200)
         ),
         R.raw.v13 to listOf(
@@ -328,9 +340,9 @@ fun VideoTouchSelector(
             ProductZone(2..4, 6, R.raw.omegat)
         ),
         R.raw.v15 to listOf(
-            ProductZone(2..4, 1, R.raw.super_aktiv),
-            ProductZone(2..4, 2, R.raw.super_aktiv),
-            ProductZone(2..4, 5, R.raw.super_aktiv)
+            ProductZone(2..4, 1, R.raw.superaktiv),
+            ProductZone(2..4, 2, R.raw.superaktiv),
+            ProductZone(2..4, 5, R.raw.multivitamins)
         ),
         R.raw.v16 to listOf(
             ProductZone(2..4, 2, R.raw.ginkobiloba),
@@ -338,7 +350,7 @@ fun VideoTouchSelector(
             ProductZone(2..4, 6, R.raw.omegat)
         ),
         R.raw.v17 to listOf(
-            ProductZone(2..4, 2, R.raw.rongum_multivitamin),
+            ProductZone(2..4, 2, R.raw.multivitamins),
             ProductZone(2..4, 5, R.raw.rongum_multivitamin)
         ),
         R.raw.v18 to listOf(
@@ -356,8 +368,8 @@ fun VideoTouchSelector(
             ProductZone(2..4, 6, R.raw.omegat)
         ),
         R.raw.v21 to listOf(
-            ProductZone(2..4, 1, R.raw.super_aktiv),
-            ProductZone(2..4, 2, R.raw.super_aktiv),
+            ProductZone(2..4, 1, R.raw.superaktiv),
+            ProductZone(2..4, 2, R.raw.superaktiv),
             ProductZone(2..4, 5, R.raw.co_q10_200)
         ),
         R.raw.v22 to listOf(
@@ -366,8 +378,8 @@ fun VideoTouchSelector(
             ProductZone(2..4, 5, R.raw.ron_j)
         ),
         R.raw.v23 to listOf(
-            ProductZone(2..4, 1, R.raw.l_carnitine),
-            ProductZone(2..4, 2, R.raw.l_carnitine),
+            ProductZone(2..4, 1, R.raw.carnitova),
+            ProductZone(2..4, 2, R.raw.carnitova),
             ProductZone(2..4, 5, R.raw.l_carnitine)
         ),
         R.raw.v24 to listOf(
@@ -385,12 +397,12 @@ fun VideoTouchSelector(
             ProductZone(2..4, 6, R.raw.omegat)
         ),
         R.raw.v27 to listOf(
-            ProductZone(2..4, 1, R.raw.super_aktiv),
-            ProductZone(2..4, 2, R.raw.super_aktiv),
-            ProductZone(2..4, 5, R.raw.super_aktiv)
+            ProductZone(2..4, 1, R.raw.superaktiv),
+            ProductZone(2..4, 2, R.raw.superaktiv),
+            ProductZone(2..4, 5, R.raw.multivitamins)
         ),
         R.raw.v28 to listOf(
-            ProductZone(2..4, 1, R.raw.super_aktiv),
+            ProductZone(2..4, 1, R.raw.superaktiv),
             ProductZone(2..4, 2, R.raw.omegat)
         ),
         R.raw.v29 to listOf(
@@ -411,7 +423,7 @@ fun VideoTouchSelector(
             ProductZone(2..4, 5, R.raw.magnesium)
         ),
         R.raw.v33 to listOf(
-            ProductZone(2..4, 2, R.raw.rongum_multivitamin),
+            ProductZone(2..4, 2, R.raw.multivitamins),
             ProductZone(2..4, 5, R.raw.rongum_multivitamin)
         ),
         R.raw.v34 to listOf(
@@ -420,8 +432,8 @@ fun VideoTouchSelector(
         ),
         R.raw.v35 to listOf(
             ProductZone(2..4, 2, R.raw.l_carnitine),
-            ProductZone(2..4, 5, R.raw.super_aktiv),
-            ProductZone(2..4, 6, R.raw.super_aktiv)
+            ProductZone(2..4, 5, R.raw.superaktiv),
+            ProductZone(2..4, 6, R.raw.superaktiv)
         ),
         R.raw.v36 to listOf(
             ProductZone(2..4, 2, R.raw.l_carnitine),
@@ -433,9 +445,9 @@ fun VideoTouchSelector(
             ProductZone(2..4, 5, R.raw.glutathione)
         ),
         R.raw.v38 to listOf(
-            ProductZone(2..4, 1, R.raw.super_aktiv),
-            ProductZone(2..4, 2, R.raw.super_aktiv),
-            ProductZone(2..4, 5, R.raw.super_aktiv)
+            ProductZone(2..4, 1, R.raw.superaktiv),
+            ProductZone(2..4, 2, R.raw.superaktiv),
+            ProductZone(2..4, 5, R.raw.multivitamins)
         ),
         R.raw.v39 to listOf(
             ProductZone(2..4, 2, R.raw.iron)
@@ -446,16 +458,16 @@ fun VideoTouchSelector(
             ProductZone(2..4, 6, R.raw.ron_s)
         ),
         R.raw.v41 to listOf(
-            ProductZone(2..4, 2, R.raw.rongum_multivitamin),
+            ProductZone(2..4, 2, R.raw.multivitamins),
             ProductZone(2..4, 5, R.raw.rongum_multivitamin)
         ),
         R.raw.v42 to listOf(
-            ProductZone(2..4, 1, R.raw.super_aktiv),
+            ProductZone(2..4, 1, R.raw.superaktiv),
             ProductZone(2..4, 2, R.raw.spasmiona)
         ),
         R.raw.v43 to listOf(
-            ProductZone(2..4, 1, R.raw.super_aktiv),
-            ProductZone(2..4, 2, R.raw.super_aktiv),
+            ProductZone(2..4, 1, R.raw.superaktiv),
+            ProductZone(2..4, 2, R.raw.superaktiv),
             ProductZone(2..4, 5, R.raw.rongum_multivitamin)
         ),
         R.raw.v44 to listOf(
@@ -467,13 +479,13 @@ fun VideoTouchSelector(
             ProductZone(2..4, 2, R.raw.ronzalax)
         ),
         R.raw.v46 to listOf(
-            ProductZone(2..4, 1, R.raw.super_aktiv),
-            ProductZone(2..4, 2, R.raw.super_aktiv),
+            ProductZone(2..4, 1, R.raw.superaktiv),
+            ProductZone(2..4, 2, R.raw.superaktiv),
             ProductZone(2..4, 5, R.raw.l_carnitine)
         ),
         R.raw.v47 to listOf(
-            ProductZone(2..4, 1, R.raw.super_aktiv),
-            ProductZone(2..4, 2, R.raw.super_aktiv)
+            ProductZone(2..4, 1, R.raw.superaktiv),
+            ProductZone(2..4, 2, R.raw.superaktiv)
         ),
         R.raw.v48 to listOf(
             ProductZone(2..4, 2, R.raw.capillorin),
@@ -496,7 +508,7 @@ fun VideoTouchSelector(
         ),
         R.raw.v52 to listOf(
             ProductZone(2..4, 2, R.raw.iron),
-            ProductZone(2..4, 5, R.raw.iron)
+            ProductZone(2..4, 5, R.raw.multivitamins)
         ),
         R.raw.v53 to listOf(
             ProductZone(2..4, 2, R.raw.cronz),
@@ -508,11 +520,11 @@ fun VideoTouchSelector(
             ProductZone(2..4, 5, R.raw.ashwagandha)
         ),
         R.raw.v55 to listOf(
-            ProductZone(2..4, 2, R.raw.super_aktiv)
+            ProductZone(2..4, 2, R.raw.superaktiv)
         ),
         R.raw.v56 to listOf(
-            ProductZone(2..4, 1, R.raw.super_aktiv),
-            ProductZone(2..4, 2, R.raw.super_aktiv),
+            ProductZone(2..4, 1, R.raw.superaktiv),
+            ProductZone(2..4, 2, R.raw.superaktiv),
             ProductZone(2..4, 5, R.raw.rongum_multivitamin)
         ),
         R.raw.v57 to listOf(
@@ -564,7 +576,7 @@ fun VideoTouchSelector(
             ProductZone(2..4, 5, R.raw.ashwagandha)
         ),
         R.raw.v67 to listOf(
-            ProductZone(2..4, 2, R.raw.rongum_multivitamin),
+            ProductZone(2..4, 2, R.raw.multivitamins),
             ProductZone(2..4, 5, R.raw.rongum_multivitamin)
         ),
         R.raw.v68 to listOf(
@@ -588,22 +600,33 @@ fun VideoTouchSelector(
         nextState: String? = null,
         onEnded: (() -> Unit)? = null
     ) {
+        // MODIFIED: Disable touch and mark video as not ready
         isTouchEnabled = false
+        isVideoReady = false
+
         exoPlayer.setMediaItem(MediaItem.fromUri(uri))
         exoPlayer.repeatMode = if (loop) ExoPlayer.REPEAT_MODE_ALL else ExoPlayer.REPEAT_MODE_OFF
         exoPlayer.prepare()
         exoPlayer.playWhenReady = true
 
-        // Remove any existing listener and add it only if we need to track video end
+        // Remove any existing listener and add it back
         exoPlayer.removeListener(playbackListener)
+        exoPlayer.addListener(playbackListener)
+
         if (onEnded != null) {
             currentOnEnded = onEnded
-            exoPlayer.addListener(playbackListener)
         }
 
         coroutineScope.launch {
+            // Wait for video to be ready before enabling touch
+            while (!isVideoReady) {
+                delay(100)
+            }
+
+            // Additional delay to ensure video is fully loaded and playing
             delay(Constants.TOUCH_ENABLE_DELAY)
             isTouchEnabled = true
+
             nextState?.let {
                 delay(Constants.STATE_CHANGE_DELAY)
                 screenState = it
@@ -655,9 +678,16 @@ fun VideoTouchSelector(
                 delay(Constants.INACTIVITY_TIMEOUT) // 12 seconds timeout
                 if (!isProductVideoPlaying && screenState == "result") {
                     screenState = "start"
+                    // Reset user selection when returning to start
+                    userSelection = UserSelection()
                 }
             }
         }
+    }
+
+    // MODIFIED: Add listener setup in LaunchedEffect
+    LaunchedEffect(Unit) {
+        exoPlayer.addListener(playbackListener)
     }
 
     LaunchedEffect(screenState) {
@@ -666,6 +696,8 @@ fun VideoTouchSelector(
 
         when (screenState) {
             "start" -> {
+                // Reset user selection when returning to start
+                userSelection = UserSelection()
                 playVideo(startUri)
             }
             "gender" -> {
@@ -727,13 +759,15 @@ fun VideoTouchSelector(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .pointerInput(screenState, isTouchEnabled) {
+            .pointerInput(screenState, isTouchEnabled, isVideoReady) {  // MODIFIED: Add isVideoReady dependency
                 awaitPointerEventScope {
                     while (true) {
                         val event = awaitPointerEvent()
 
                         if (event.changes.isEmpty()) continue
-                        if (!isTouchEnabled) {
+
+                        // MODIFIED: Check both touch enabled and video ready
+                        if (!isTouchEnabled || !isVideoReady) {
                             event.changes.forEach { it.consume() }
                             continue
                         }
@@ -765,7 +799,10 @@ fun VideoTouchSelector(
                         }
 
                         when (screenState) {
-                            "start" -> if (cellIndex == 4) screenState = "gender"
+                            "start" -> if (cellIndex == 4) {
+                                isTouchEnabled = false  // MODIFIED: Disable immediately
+                                screenState = "gender"
+                            }
 
                             "gender" -> {
                                 val selectedGender = when (cellIndex) {
@@ -774,6 +811,7 @@ fun VideoTouchSelector(
                                     else -> null
                                 }
                                 if (selectedGender != null) {
+                                    isTouchEnabled = false  // MODIFIED: Disable immediately
                                     userSelection = userSelection.copy(gender = selectedGender)
                                     screenState = "age"
                                 }
@@ -787,6 +825,7 @@ fun VideoTouchSelector(
                                     else -> null
                                 }
                                 if (selectedAge != null) {
+                                    isTouchEnabled = false  // MODIFIED: Disable immediately
                                     userSelection = userSelection.copy(ageGroup = selectedAge)
                                     screenState = "lifestyle"
                                 }
@@ -800,6 +839,7 @@ fun VideoTouchSelector(
                                     else -> null
                                 }
                                 if (selectedLifestyle != null) {
+                                    isTouchEnabled = false  // MODIFIED: Disable immediately
                                     userSelection = userSelection.copy(lifestyle = selectedLifestyle)
                                     screenState = "problem"
                                 }
@@ -832,8 +872,8 @@ fun VideoTouchSelector(
                                     else -> null
                                 }
                                 if (selectedOption != null) {
+                                    isTouchEnabled = false  // MODIFIED: Already disabled, but keep for clarity
                                     userSelection = userSelection.copy(problemOption = selectedOption)
-                                    isTouchEnabled = false
                                     playResultVideo()
                                 }
                             }

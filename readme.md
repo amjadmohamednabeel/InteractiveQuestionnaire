@@ -201,7 +201,7 @@ Modify constants in the `Constants` object to adjust timing behavior.
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](license.md) file for details.
+This project is licensed under the Copyright (c) License - see the [LICENSE](license.md) file for details.
 
 ## 👥 Authors
 

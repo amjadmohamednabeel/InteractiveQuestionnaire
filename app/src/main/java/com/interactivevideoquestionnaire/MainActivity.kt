@@ -2,7 +2,7 @@
 
 //////////////////////////////////////////////////////////////////////////////
 //Author : Amjad Mohamed Nabeel                                           ////
-//Date : 2025-08-04                                                       ////
+//Date : 2025-08-12                                                       ////
 //Version : 1.0.1                                                         ////
 //This file is part of the Interactive Video Questionnaire project.       ////
 //////////////////////////////////////////////////////////////////////////////
@@ -332,7 +332,7 @@ fun VideoTouchSelector(
         R.raw.v13 to listOf(
             ProductZone(2..4, 1, R.raw.ron_j),
             ProductZone(2..4, 2, R.raw.ron_j),
-            ProductZone(2..4, 5, R.raw.ron_j)
+            ProductZone(2..4, 5, R.raw.glucosamine)
         ),
         R.raw.v14 to listOf(
             ProductZone(2..4, 2, R.raw.ginkobiloba),
@@ -359,7 +359,7 @@ fun VideoTouchSelector(
             ProductZone(2..4, 6, R.raw.ashwagandha)
         ),
         R.raw.v19 to listOf(
-            ProductZone(2..4, 2, R.raw.ashwagandha)
+            ProductZone(2..4, 2, R.raw.omegat)
         ),
         R.raw.v20 to listOf(
             ProductZone(2..4, 1, R.raw.ashwagandha),
@@ -375,7 +375,7 @@ fun VideoTouchSelector(
         R.raw.v22 to listOf(
             ProductZone(2..4, 1, R.raw.ron_j),
             ProductZone(2..4, 2, R.raw.ron_j),
-            ProductZone(2..4, 5, R.raw.ron_j)
+            ProductZone(2..4, 5, R.raw.glucosamine)
         ),
         R.raw.v23 to listOf(
             ProductZone(2..4, 1, R.raw.carnitova),
@@ -413,7 +413,7 @@ fun VideoTouchSelector(
         R.raw.v30 to listOf(
             ProductZone(2..4, 1, R.raw.ron_j),
             ProductZone(2..4, 2, R.raw.ron_j),
-            ProductZone(2..4, 5, R.raw.ron_j)
+            ProductZone(2..4, 5, R.raw.glucosamine)
         ),
         R.raw.v31 to listOf(
             ProductZone(2..4, 2, R.raw.ron_j)
@@ -535,7 +535,7 @@ fun VideoTouchSelector(
         R.raw.v58 to listOf(
             ProductZone(2..4, 1, R.raw.ron_j),
             ProductZone(2..4, 2, R.raw.ron_j),
-            ProductZone(2..4, 5, R.raw.ron_j)
+            ProductZone(2..4, 5, R.raw.glucosamine)
         ),
         R.raw.v59 to listOf(
             ProductZone(2..4, 2, R.raw.vitamin_d),
@@ -554,7 +554,7 @@ fun VideoTouchSelector(
         R.raw.v62 to listOf(
             ProductZone(2..4, 1, R.raw.ron_j),
             ProductZone(2..4, 2, R.raw.ron_j),
-            ProductZone(2..4, 5, R.raw.ron_j)
+            ProductZone(2..4, 5, R.raw.glucosamine)
         ),
         R.raw.v63 to listOf(
             ProductZone(2..4, 1, R.raw.ron_s),
@@ -586,7 +586,7 @@ fun VideoTouchSelector(
         R.raw.v69 to listOf(
             ProductZone(2..4, 1, R.raw.ron_j),
             ProductZone(2..4, 2, R.raw.ron_j),
-            ProductZone(2..4, 5, R.raw.ron_j)
+            ProductZone(2..4, 5, R.raw.glucosamine)
         ),
         R.raw.v70 to listOf(
             ProductZone(2..4, 2, R.raw.vitamin_d),

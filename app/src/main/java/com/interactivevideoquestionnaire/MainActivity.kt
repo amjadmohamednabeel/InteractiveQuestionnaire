@@ -35,7 +35,7 @@ import androidx.core.view.WindowInsetsControllerCompat
 // Add these constants and sealed classes
 private object Constants {
     const val INACTIVITY_TIMEOUT = 20000L // 20 seconds
-    const val TOUCH_ENABLE_DELAY = 1000L    // Increased to 1.0 seconds
+    const val TOUCH_ENABLE_DELAY = 850L    // Increased to 0.85 seconds
     const val STATE_CHANGE_DELAY = 4000L   // 4 seconds
 }
 
@@ -296,7 +296,7 @@ fun VideoTouchSelector(
             ProductZone(2..4, 5, R.raw.multivitamins)
         ),
         R.raw.v6 to listOf(
-            ProductZone(2..4, 1, R.raw.ashwagandha),
+            ProductZone(2..4, 1, R.raw.rongum_ashwagandha),
             ProductZone(2..4, 2, R.raw.ashwagandha),
             ProductZone(2..4, 5, R.raw.calmtonin)
         ),
@@ -306,7 +306,7 @@ fun VideoTouchSelector(
             ProductZone(2..4, 6, R.raw.superaktiv)
         ),
         R.raw.v8 to listOf(
-            ProductZone(2..4, 1, R.raw.ashwagandha),
+            ProductZone(2..4, 1, R.raw.rongum_ashwagandha),
             ProductZone(2..4, 2, R.raw.ashwagandha),
             ProductZone(2..4, 5, R.raw.calmtonin)
         ),
@@ -356,14 +356,14 @@ fun VideoTouchSelector(
         R.raw.v18 to listOf(
             ProductZone(2..4, 2, R.raw.calmtonin),
             ProductZone(2..4, 5, R.raw.ashwagandha),
-            ProductZone(2..4, 6, R.raw.ashwagandha)
+            ProductZone(2..4, 6, R.raw.rongum_ashwagandha)
         ),
         R.raw.v19 to listOf(
             ProductZone(2..4, 2, R.raw.rondiet)
         ),
         R.raw.v20 to listOf(
             ProductZone(2..4, 2, R.raw.ashwagandha),
-            ProductZone(2..4, 5, R.raw.ashwagandha)
+            ProductZone(2..4, 5, R.raw.rongum_ashwagandha)
         ),
         R.raw.v21 to listOf(
             ProductZone(2..4, 1, R.raw.superaktiv),
@@ -404,7 +404,7 @@ fun VideoTouchSelector(
             ProductZone(2..4, 2, R.raw.omegat)
         ),
         R.raw.v29 to listOf(
-            ProductZone(2..4, 1, R.raw.ashwagandha),
+            ProductZone(2..4, 1, R.raw.rongum_ashwagandha),
             ProductZone(2..4, 2, R.raw.ashwagandha),
             ProductZone(2..4, 5, R.raw.calmtonin)
         ),
@@ -469,7 +469,7 @@ fun VideoTouchSelector(
             ProductZone(2..4, 5, R.raw.rongum_multivitamin)
         ),
         R.raw.v44 to listOf(
-            ProductZone(2..4, 1, R.raw.ashwagandha),
+            ProductZone(2..4, 1, R.raw.rongum_ashwagandha),
             ProductZone(2..4, 2, R.raw.ashwagandha),
             ProductZone(2..4, 5, R.raw.calmtonin)
         ),
@@ -491,7 +491,7 @@ fun VideoTouchSelector(
             ProductZone(2..4, 6, R.raw.ron_h)
         ),
         R.raw.v49 to listOf(
-            ProductZone(2..4, 1, R.raw.ashwagandha),
+            ProductZone(2..4, 1, R.raw.rongum_ashwagandha),
             ProductZone(2..4, 2, R.raw.ashwagandha)
         ),
         R.raw.v50 to listOf(
@@ -513,7 +513,7 @@ fun VideoTouchSelector(
             ProductZone(2..4, 5, R.raw.zinc)
         ),
         R.raw.v54 to listOf(
-            ProductZone(2..4, 1, R.raw.ashwagandha),
+            ProductZone(2..4, 1, R.raw.rongum_ashwagandha),
             ProductZone(2..4, 2, R.raw.ashwagandha),
             ProductZone(2..4, 5, R.raw.calmtonin)
         ),
@@ -569,7 +569,7 @@ fun VideoTouchSelector(
             ProductZone(2..4, 6, R.raw.ron_h)
         ),
         R.raw.v66 to listOf(
-            ProductZone(2..4, 1, R.raw.ashwagandha),
+            ProductZone(2..4, 1, R.raw.rongum_ashwagandha),
             ProductZone(2..4, 2, R.raw.ashwagandha),
             ProductZone(2..4, 5, R.raw.calmtonin)
         ),

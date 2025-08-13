@@ -2,8 +2,8 @@
 
 //////////////////////////////////////////////////////////////////////////////
 //Author : Amjad Mohamed Nabeel                                           ////
-//Date : 2025-08-12                                                       ////
-//Version : 1.0.1                                                         ////
+//Date : 2025-08-13                                                       ////
+//Version : 1.0.2                                                         ////
 //This file is part of the Interactive Video Questionnaire project.       ////
 //////////////////////////////////////////////////////////////////////////////
 
@@ -316,7 +316,7 @@ fun VideoTouchSelector(
             ProductZone(2..4, 6, R.raw.omegat)
         ),
         R.raw.v10 to listOf(
-            ProductZone(2..4, 2, R.raw.superaktiv)
+            ProductZone(2..4, 2, R.raw.rondiet)
         ),
         R.raw.v11 to listOf(
             ProductZone(2..4, 1, R.raw.carnitova),
@@ -359,13 +359,11 @@ fun VideoTouchSelector(
             ProductZone(2..4, 6, R.raw.ashwagandha)
         ),
         R.raw.v19 to listOf(
-            ProductZone(2..4, 2, R.raw.omegat)
+            ProductZone(2..4, 2, R.raw.rondiet)
         ),
         R.raw.v20 to listOf(
-            ProductZone(2..4, 1, R.raw.ashwagandha),
             ProductZone(2..4, 2, R.raw.ashwagandha),
-            ProductZone(2..4, 5, R.raw.omegat),
-            ProductZone(2..4, 6, R.raw.omegat)
+            ProductZone(2..4, 5, R.raw.ashwagandha)
         ),
         R.raw.v21 to listOf(
             ProductZone(2..4, 1, R.raw.superaktiv),
@@ -416,7 +414,7 @@ fun VideoTouchSelector(
             ProductZone(2..4, 5, R.raw.glucosamine)
         ),
         R.raw.v31 to listOf(
-            ProductZone(2..4, 2, R.raw.ron_j)
+            ProductZone(2..4, 2, R.raw.rondiet)
         ),
         R.raw.v32 to listOf(
             ProductZone(2..4, 2, R.raw.l_carnitine),
@@ -520,7 +518,7 @@ fun VideoTouchSelector(
             ProductZone(2..4, 5, R.raw.calmtonin)
         ),
         R.raw.v55 to listOf(
-            ProductZone(2..4, 2, R.raw.superaktiv)
+            ProductZone(2..4, 2, R.raw.rondiet)
         ),
         R.raw.v56 to listOf(
             ProductZone(2..4, 1, R.raw.superaktiv),

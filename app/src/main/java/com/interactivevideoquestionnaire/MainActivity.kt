@@ -673,7 +673,7 @@ fun VideoTouchSelector(
             // Start inactivity timer when on result screen
             inactivityJob?.cancel()
             inactivityJob = coroutineScope.launch {
-                delay(Constants.INACTIVITY_TIMEOUT) // 12 seconds timeout
+                delay(Constants.INACTIVITY_TIMEOUT) // 20 seconds timeout
                 if (!isProductVideoPlaying && screenState == "result") {
                     screenState = "start"
                     // Reset user selection when returning to start

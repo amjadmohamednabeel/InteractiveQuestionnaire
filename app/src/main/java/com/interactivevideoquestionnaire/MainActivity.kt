@@ -2,8 +2,8 @@
 
 //////////////////////////////////////////////////////////////////////////////
 //Author : Amjad Mohamed Nabeel                                           ////
-//Date : 2025-08-13                                                       ////
-//Version : 1.0.2                                                         ////
+//Date : 2025-08-22                                                       ////
+//Version : 1.0.4                                                         ////
 //This file is part of the Interactive Video Questionnaire project.       ////
 //////////////////////////////////////////////////////////////////////////////
 
@@ -14,11 +14,22 @@ import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material3.Icon
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.net.toUri
 import androidx.media3.common.MediaItem
@@ -37,6 +48,7 @@ private object Constants {
     const val INACTIVITY_TIMEOUT = 20000L // 20 seconds
     const val TOUCH_ENABLE_DELAY = 850L    // Increased to 0.85 seconds
     const val STATE_CHANGE_DELAY = 4000L   // 4 seconds
+    const val BACK_BUTTON_FADE_DELAY = 1000L // 1 seconds before back button appears
 }
 
 sealed class Gender {
@@ -230,18 +242,48 @@ fun VideoTouchSelector(
 
     var screenState by remember { mutableStateOf("start") }
     var isTouchEnabled by remember { mutableStateOf(true) }
-    var isVideoReady by remember { mutableStateOf(false) }  // NEW: Track video readiness
+    var isVideoReady by remember { mutableStateOf(false) }
+    var showBackButton by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
 
     // State for tracking product video playback and inactivity
     var isProductVideoPlaying by remember { mutableStateOf(false) }
     var inactivityJob by remember { mutableStateOf<Job?>(null) }
+    var backButtonJob by remember { mutableStateOf<Job?>(null) }
 
     var userSelection by remember { mutableStateOf(UserSelection()) }
     var currentResultResId by remember { mutableStateOf<Int?>(null) }
 
     // For tracking video end callbacks
     var currentOnEnded: (() -> Unit)? by remember { mutableStateOf(null) }
+
+    // Function to handle back navigation
+    fun navigateBack() {
+        when (screenState) {
+            "gender" -> {
+                screenState = "start"
+                userSelection = UserSelection() // Reset selection
+            }
+            "age" -> {
+                screenState = "gender"
+                userSelection = userSelection.copy(ageGroup = null, lifestyle = null, problemOption = null)
+            }
+            "lifestyle" -> {
+                screenState = "age"
+                userSelection = userSelection.copy(lifestyle = null, problemOption = null)
+            }
+            "problem" -> {
+                screenState = "lifestyle"
+                userSelection = userSelection.copy(problemOption = null)
+            }
+            "result" -> {
+                if (!isProductVideoPlaying) {
+                    screenState = "problem"
+                    userSelection = userSelection.copy(problemOption = null)
+                }
+            }
+        }
+    }
 
     // ExoPlayer listener to detect when videos finish playing and are ready
     val playbackListener = remember {
@@ -255,7 +297,7 @@ fun VideoTouchSelector(
                         isVideoReady = false
                     }
                     Player.STATE_READY -> {
-                        isVideoReady = true  // Mark video as ready
+                        isVideoReady = true
                     }
                     Player.STATE_ENDED -> {
                         currentOnEnded?.invoke()
@@ -426,7 +468,8 @@ fun VideoTouchSelector(
         ),
         R.raw.v34 to listOf(
             ProductZone(2..4, 2, R.raw.biotin),
-            ProductZone(2..4, 5, R.raw.ron_h)
+            ProductZone(2..4, 5, R.raw.ron_h),
+            ProductZone(2..4, 6, R.raw.ron_h)
         ),
         R.raw.v35 to listOf(
             ProductZone(2..4, 2, R.raw.l_carnitine),
@@ -598,9 +641,10 @@ fun VideoTouchSelector(
         nextState: String? = null,
         onEnded: (() -> Unit)? = null
     ) {
-        // MODIFIED: Disable touch and mark video as not ready
+        // Disable touch and mark video as not ready
         isTouchEnabled = false
         isVideoReady = false
+        showBackButton = false
 
         exoPlayer.setMediaItem(MediaItem.fromUri(uri))
         exoPlayer.repeatMode = if (loop) ExoPlayer.REPEAT_MODE_ALL else ExoPlayer.REPEAT_MODE_OFF
@@ -628,6 +672,15 @@ fun VideoTouchSelector(
             nextState?.let {
                 delay(Constants.STATE_CHANGE_DELAY)
                 screenState = it
+            }
+        }
+
+        // Show back button after delay (except on start screen)
+        if (screenState != "start") {
+            backButtonJob?.cancel()
+            backButtonJob = coroutineScope.launch {
+                delay(Constants.BACK_BUTTON_FADE_DELAY)
+                showBackButton = true
             }
         }
     }
@@ -683,14 +736,16 @@ fun VideoTouchSelector(
         }
     }
 
-    // MODIFIED: Add listener setup in LaunchedEffect
+    // Add listener setup in LaunchedEffect
     LaunchedEffect(Unit) {
         exoPlayer.addListener(playbackListener)
     }
 
     LaunchedEffect(screenState) {
-        // Cancel any existing inactivity timeout
+        // Cancel any existing inactivity timeout and back button job
         inactivityJob?.cancel()
+        backButtonJob?.cancel()
+        showBackButton = false
 
         when (screenState) {
             "start" -> {
@@ -751,20 +806,21 @@ fun VideoTouchSelector(
             exoPlayer.removeListener(playbackListener)
             exoPlayer.release()
             inactivityJob?.cancel()
+            backButtonJob?.cancel()
         }
     }
 
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .pointerInput(screenState, isTouchEnabled, isVideoReady) {  // MODIFIED: Add isVideoReady dependency
+            .pointerInput(screenState, isTouchEnabled, isVideoReady) {
                 awaitPointerEventScope {
                     while (true) {
                         val event = awaitPointerEvent()
 
                         if (event.changes.isEmpty()) continue
 
-                        // MODIFIED: Check both touch enabled and video ready
+                        // Check both touch enabled and video ready
                         if (!isTouchEnabled || !isVideoReady) {
                             event.changes.forEach { it.consume() }
                             continue
@@ -798,7 +854,7 @@ fun VideoTouchSelector(
 
                         when (screenState) {
                             "start" -> if (cellIndex == 4) {
-                                isTouchEnabled = false  // MODIFIED: Disable immediately
+                                isTouchEnabled = false
                                 screenState = "gender"
                             }
 
@@ -809,7 +865,7 @@ fun VideoTouchSelector(
                                     else -> null
                                 }
                                 if (selectedGender != null) {
-                                    isTouchEnabled = false  // MODIFIED: Disable immediately
+                                    isTouchEnabled = false
                                     userSelection = userSelection.copy(gender = selectedGender)
                                     screenState = "age"
                                 }
@@ -823,7 +879,7 @@ fun VideoTouchSelector(
                                     else -> null
                                 }
                                 if (selectedAge != null) {
-                                    isTouchEnabled = false  // MODIFIED: Disable immediately
+                                    isTouchEnabled = false
                                     userSelection = userSelection.copy(ageGroup = selectedAge)
                                     screenState = "lifestyle"
                                 }
@@ -837,7 +893,7 @@ fun VideoTouchSelector(
                                     else -> null
                                 }
                                 if (selectedLifestyle != null) {
-                                    isTouchEnabled = false  // MODIFIED: Disable immediately
+                                    isTouchEnabled = false
                                     userSelection = userSelection.copy(lifestyle = selectedLifestyle)
                                     screenState = "problem"
                                 }
@@ -870,7 +926,7 @@ fun VideoTouchSelector(
                                     else -> null
                                 }
                                 if (selectedOption != null) {
-                                    isTouchEnabled = false  // MODIFIED: Already disabled, but keep for clarity
+                                    isTouchEnabled = false
                                     userSelection = userSelection.copy(problemOption = selectedOption)
                                     playResultVideo()
                                 }
@@ -906,8 +962,7 @@ fun VideoTouchSelector(
                     }
                 }
             }
-    )
-    {
+    ) {
         AndroidView(
             factory = {
                 PlayerView(it).apply {
@@ -918,5 +973,58 @@ fun VideoTouchSelector(
             },
             modifier = Modifier.fillMaxSize()
         )
+
+        // Back button and Home button overlay
+        if (showBackButton && screenState != "start" && !isProductVideoPlaying) {
+            Row(
+                modifier = Modifier
+                    .padding(16.dp)
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                // Back button
+                Box(
+                    modifier = Modifier
+                        .size(56.dp)
+                        .clip(CircleShape)
+                        .background(Color.Black.copy(alpha = 0.6f))
+                        .clickable {
+                            showBackButton = false
+                            navigateBack()
+                        },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = "Back",
+                        tint = Color.White,
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
+
+                // Back to Start button (only show on result screen)
+                if (screenState == "result") {
+                    Box(
+                        modifier = Modifier
+                            .size(56.dp)
+                            .clip(CircleShape)
+                            .background(Color.Black.copy(alpha = 0.6f))
+                            .clickable {
+                                showBackButton = false
+                                screenState = "start"
+                                userSelection = UserSelection()
+                            },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Home,
+                            contentDescription = "Back to Start",
+                            tint = Color.White,
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
+                }
+            }
+        }
     }
 }

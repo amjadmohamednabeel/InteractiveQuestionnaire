@@ -2,8 +2,8 @@
 
 //////////////////////////////////////////////////////////////////////////////
 //Author : Amjad Mohamed Nabeel                                           ////
-//Date : 2025-08-22                                                       ////
-//Version : 1.0.4                                                         ////
+//Date : 2025-08-26                                                       ////
+//Version : 1.0.5                                                         ////
 //This file is part of the Interactive Video Questionnaire project.       ////
 //////////////////////////////////////////////////////////////////////////////
 
@@ -491,7 +491,8 @@ fun VideoTouchSelector(
             ProductZone(2..4, 5, R.raw.multivitamins)
         ),
         R.raw.v39 to listOf(
-            ProductZone(2..4, 2, R.raw.iron)
+            ProductZone(2..4, 3, R.raw.iron),
+            ProductZone(2..4, 4, R.raw.iron)
         ),
         R.raw.v40 to listOf(
             ProductZone(2..4, 2, R.raw.rongum_hair_nail),

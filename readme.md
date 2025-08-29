@@ -219,6 +219,6 @@ For support, email amnamjad4@gmail.com or create an issue in this repository.
 
 ---
 
-**Version**: 1.0.0  
+**Version**: 1.0.5  
 **Last Updated**: August 2025  
 **Status**: Active Development
